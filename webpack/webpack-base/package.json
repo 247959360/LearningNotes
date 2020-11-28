@@ -1,0 +1,54 @@
+{
+  "name": "webpack-use",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack-dev-server",
+    "build": "webpack --config webpack.config.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.12.7",
+    "@babel/plugin-proposal-async-generator-functions": "^7.12.1",
+    "@babel/plugin-proposal-class-properties": "^7.12.1",
+    "@babel/plugin-transform-runtime": "^7.12.1",
+    "@babel/preset-env": "^7.12.7",
+    "autoprefixer": "^10.0.2",
+    "babel-loader": "^8.2.1",
+    "css-loader": "^5.0.1",
+    "eslint-loader": "^4.0.2",
+    "expose-loader": "^1.0.1",
+    "html-withimg-loader": "^0.1.16",
+    "less": "^3.12.2",
+    "less-loader": "^7.1.0",
+    "mini-css-extract-plugin": "^1.3.1",
+    "node-less": "^1.0.0",
+    "optimize-css-assets-webpack-plugin": "^5.0.4",
+    "postcss-loader": "^4.1.0",
+    "postcss-px-to-viewport": "^1.1.1",
+    "style-loader": "^2.0.0",
+    "terser-webpack-plugin": "^5.0.3",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.6.0",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.12.1",
+    "@babel/runtime": "^7.12.5",
+    "html-webpack-plugin": "^4.5.0",
+    "jquery": "^3.5.1",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "browserslist": [
+    "defaults",
+    "not ie < 9",
+    "last 2 versions",
+    "> 1%",
+    "iOS 7",
+    "last 3 iOS versions"
+  ]
+}

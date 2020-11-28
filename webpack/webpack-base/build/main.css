@@ -1,0 +1,19 @@
+p {
+  height: 100px;
+  background-color: #eee;
+  background-clip: content-box;
+  background: linear-gradient(red, yellow);
+}
+body {
+  height: 13.333vw;
+  border-radius: 0.667vw;
+  -webkit-transform: rotate(45%);
+          transform: rotate(45%);
+}
+body a {
+  font-size: 1.333vw;
+  -webkit-transform: translate(-50%);
+          transform: translate(-50%);
+  font-size: 1.067vw;
+}
+

@@ -1,0 +1,6 @@
+p {
+  height: 100px;
+  background-color: #eee;
+  background-clip: content-box;
+  background: linear-gradient(red, yellow);
+}
