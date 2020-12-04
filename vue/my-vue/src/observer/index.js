@@ -1,5 +1,5 @@
 // data中的数据 重新定义
-import { isObject } from '../util/index'
+import { isObject, def } from '../util/index'
 import { arrayMethods } from './array'
 
 // 递归处理 里面的数据可能很复杂
@@ -7,9 +7,22 @@ class Observer {
   constructor(value) {
     // 如果数据的层次过多 需要递归的去解析对象中的属性  依次增加 get和set
     // vue3 使用了proxy 就不需要依次的递归了 支持监听整个对象 也不需要set和get
+    // 给每一个监控过的对象都加一个 __ob__ 属性 指向当前的Observer实例
+    // value.__ob__ = this
+    def(value, '__ob__', this)
+    // Object.defineProperty(value, '__ob__', {
+    //   // 不可被枚举
+    //   enumerable: false,
+    //   // 不可以被在修改
+    //   configurable: false,
+    //   // 值
+    //   value: this
+    // })
     if(Array.isArray(value)) {
-      // value.__proto__ = arrayMethods
-      setArray()
+      // 改变数组的原型上的方法 7个变异的方法  其他没有重写，还是直接走数组原先的方法
+      // 不会被拦截
+      value.__proto__ = arrayMethods
+      // setArray()
       this.observerArray(value)
     } else {
       this.walk(value)
@@ -22,6 +35,7 @@ class Observer {
     })
   }
   observerArray(value) {
+    // 判断数组是否还有对象  也是需要进行劫持的
     value.forEach((item, index) => {
       observer(item)
     })
@@ -70,26 +84,26 @@ export function initSet(Vue, vm) {
   }
 }
 
-function setArray() {
-  let methods = [
-    'unshift',
-    'shift',
-    'pop',
-    'push',
-    'splice',
-    'sort',
-    'reverse'
-  ]
-  let oldPrototype = Array.prototype
-  methods.forEach((method) => {
-    Array.prototype[method] = function(value) {
-      console.log(oldPrototype)
-      // 这个会导致死循环
-      // let r = oldPrototype[method].call(this, value)
-      // return r
-    }
-  })
-}
+// function setArray() {
+//   let methods = [
+//     'unshift',
+//     'shift',
+//     'pop',
+//     'push',
+//     'splice',
+//     'sort',
+//     'reverse'
+//   ]
+//   let oldPrototype = Array.prototype
+//   methods.forEach((method) => {
+//     Array.prototype[method] = function(value) {
+//       console.log(oldPrototype)
+//       // 这个会导致死循环
+//       // let r = oldPrototype[method].call(this, value)
+//       // return r
+//     }
+//   })
+// }
 // for(let i = 0; i < methods.length; i++) {
 //   Array.prototype[methods[i]] = function(value) {
 //     console.log(value)

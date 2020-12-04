@@ -49,6 +49,56 @@
       return false;
     }
   }
+  function def(data, key, value) {
+    Object.defineProperty(data, key, {
+      // 不可被枚举
+      enumerable: false,
+      // 不可以被在修改
+      configurable: false,
+      // 值
+      value: value
+    });
+  }
+
+  var oldArrayMethods = Array.prototype;
+  var arrayMethods = Object.create(oldArrayMethods); // 查找原型的方法  先从 __proto__ 上查找
+  // 找不到的话  再去 prototype上查找
+  // 
+  // 原型链看一下
+
+  var methods = ['unshift', 'shift', 'pop', 'push', 'splice', 'sort', 'reverse'];
+  methods.forEach(function (method, index) {
+    arrayMethods[method] = function () {
+      console.log('用户改变了数组');
+
+      for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+        args[_key] = arguments[_key];
+      }
+
+      var result = oldArrayMethods[method].apply(this, args);
+      var ob = this.__ob__;
+      console.log(ob, 'ob方法');
+      var inserted; // 插入的元素是对象还需要在劫持
+      // 获取到插入的数据
+
+      switch (method) {
+        case 'push':
+        case 'unshift':
+          inserted = args;
+          break;
+
+        case 'splice':
+          inserted = args.slice(2);
+      }
+
+      if (inserted) {
+        console.log(inserted, 'inserted');
+        ob.observerArray(inserted);
+      }
+
+      return result;
+    };
+  });
 
   var Observer = /*#__PURE__*/function () {
     function Observer(value) {
@@ -56,9 +106,22 @@
 
       // 如果数据的层次过多 需要递归的去解析对象中的属性  依次增加 get和set
       // vue3 使用了proxy 就不需要依次的递归了 支持监听整个对象 也不需要set和get
+      // 给每一个监控过的对象都加一个 __ob__ 属性 指向当前的Observer实例
+      // value.__ob__ = this
+      def(value, '__ob__', this); // Object.defineProperty(value, '__ob__', {
+      //   // 不可被枚举
+      //   enumerable: false,
+      //   // 不可以被在修改
+      //   configurable: false,
+      //   // 值
+      //   value: this
+      // })
+
       if (Array.isArray(value)) {
-        // value.__proto__ = arrayMethods
-        setArray();
+        // 改变数组的原型上的方法 7个变异的方法  其他没有重写，还是直接走数组原先的方法
+        // 不会被拦截
+        value.__proto__ = arrayMethods; // setArray()
+
         this.observerArray(value);
       } else {
         this.walk(value);
@@ -76,6 +139,7 @@
     }, {
       key: "observerArray",
       value: function observerArray(value) {
+        // 判断数组是否还有对象  也是需要进行劫持的
         value.forEach(function (item, index) {
           observer(item);
         });
@@ -124,19 +188,27 @@
       // 响应式处理
       defineReactive(target, key, value); // vm._data = target
     };
-  }
-
-  function setArray() {
-    var methods = ['unshift', 'shift', 'pop', 'push', 'splice', 'sort', 'reverse'];
-    var oldPrototype = Array.prototype;
-    methods.forEach(function (method) {
-      Array.prototype[method] = function (value) {
-        console.log(oldPrototype); // 这个会导致死循环
-        // let r = oldPrototype[method].call(this, value)
-        // return r
-      };
-    });
-  } // for(let i = 0; i < methods.length; i++) {
+  } // function setArray() {
+  //   let methods = [
+  //     'unshift',
+  //     'shift',
+  //     'pop',
+  //     'push',
+  //     'splice',
+  //     'sort',
+  //     'reverse'
+  //   ]
+  //   let oldPrototype = Array.prototype
+  //   methods.forEach((method) => {
+  //     Array.prototype[method] = function(value) {
+  //       console.log(oldPrototype)
+  //       // 这个会导致死循环
+  //       // let r = oldPrototype[method].call(this, value)
+  //       // return r
+  //     }
+  //   })
+  // }
+  // for(let i = 0; i < methods.length; i++) {
   //   Array.prototype[methods[i]] = function(value) {
   //     console.log(value)
   //     // oldPrototype
