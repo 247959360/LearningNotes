@@ -19,14 +19,7 @@ export function initState(vm) {
     // 做一个代理  让用户可以直接通过 实例.xx 获取属性
     keys.forEach((key, index) => {
       // 也就是做一个引用而已  还是指向vm._data里面的数据
-      Object.defineProperty(vm, key, {
-        get() {
-          return vm._data[key]
-        },
-        set(newValue) {
-          vm._data[key] = newValue
-        }
-      })
+      proxy(vm, '_data', key)
     })
   }
   if(opts.data) {
@@ -35,6 +28,17 @@ export function initState(vm) {
   if(opts.data) {
     initWatch(vm)
   }
+}
+
+function proxy(vm, source, key) {
+  Object.defineProperty(vm, key, {
+    get() {
+      return vm[source][key]
+    },
+    set(newValue) {
+      vm[source][key] = newValue
+    }
+  })
 }
 
 function initProps(vm) {

@@ -1,6 +1,6 @@
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('vuex')) :
+  typeof define === 'function' && define.amd ? define(['vuex'], factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Vue = factory());
 }(this, (function () { 'use strict';
 
@@ -40,6 +40,62 @@
     if (protoProps) _defineProperties(Constructor.prototype, protoProps);
     if (staticProps) _defineProperties(Constructor, staticProps);
     return Constructor;
+  }
+
+  function _slicedToArray(arr, i) {
+    return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest();
+  }
+
+  function _arrayWithHoles(arr) {
+    if (Array.isArray(arr)) return arr;
+  }
+
+  function _iterableToArrayLimit(arr, i) {
+    if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return;
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _e = undefined;
+
+    try {
+      for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+        _arr.push(_s.value);
+
+        if (i && _arr.length === i) break;
+      }
+    } catch (err) {
+      _d = true;
+      _e = err;
+    } finally {
+      try {
+        if (!_n && _i["return"] != null) _i["return"]();
+      } finally {
+        if (_d) throw _e;
+      }
+    }
+
+    return _arr;
+  }
+
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i];
+
+    return arr2;
+  }
+
+  function _nonIterableRest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
   function isObject(data) {
@@ -235,20 +291,24 @@
 
       keys.forEach(function (key, index) {
         // 也就是做一个引用而已  还是指向vm._data里面的数据
-        Object.defineProperty(vm, key, {
-          get: function get() {
-            return vm._data[key];
-          },
-          set: function set(newValue) {
-            vm._data[key] = newValue;
-          }
-        });
+        proxy(vm, '_data', key);
       });
     }
 
     if (opts.data) ;
 
     if (opts.data) ;
+  }
+
+  function proxy(vm, source, key) {
+    Object.defineProperty(vm, key, {
+      get: function get() {
+        return vm[source][key];
+      },
+      set: function set(newValue) {
+        vm[source][key] = newValue;
+      }
+    });
   }
 
   function initData(vm) {
@@ -263,6 +323,238 @@
     observer(data); // 响应式原理
   }
 
+  // ast语法树  是用对象来描述原生语法的  虚拟dom 用对象来描述dom节点
+  var ncname = "[a-zA-Z_][\\-\\.0-9_a-zA-Z]*"; // abc-aaa
+
+  var qnameCapture = "((?:".concat(ncname, "\\:)?").concat(ncname, ")"); // <aaa:abc> 
+
+  var startTagOpen = new RegExp("^<".concat(qnameCapture)); // 标签开头的正则 捕获的内容是标签名
+
+  var endTag = new RegExp("^<\\/".concat(qnameCapture, "[^>]*>")); // 匹配标签结尾的 </div>
+
+  var attribute = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/; // 匹配属性的
+
+  var startTagClose = /^\s*(\/?)>/; // 匹配标签结束的 > 自闭和标签
+
+  var defaultTagRE = /\{\{((?:.|\r?\n)+?)\}\}/g; // 匹配vue的模版语法 {{}}
+  // 正则
+  // 匹配标签、匹配属性
+
+  var root;
+  var currentParent;
+  var stack = [];
+  var ELEMENT_TYPE = 1;
+  var TEXT_TYPE = 3;
+
+  function createASTElement(tagName, attrs) {
+    return {
+      tag: tagName,
+      type: ELEMENT_TYPE,
+      children: [],
+      attrs: attrs,
+      parent: null
+    };
+  }
+
+  function start(tagName, attrs) {
+    var element = createASTElement(tagName, attrs);
+
+    if (!root) {
+      root = element;
+    }
+
+    currentParent = element;
+    stack.push(element);
+  }
+
+  function end(tagName) {
+    var element = stack.pop();
+    currentParent = stack[stack.length - 1];
+
+    if (currentParent) {
+      element.parent = currentParent;
+      currentParent.children.push(element);
+    }
+  }
+
+  function chars(text) {
+    text = text.replace(/\s/g, '');
+
+    if (text) {
+      currentParent.children.push({
+        type: TEXT_TYPE,
+        text: text
+      });
+    }
+  }
+
+  function parseHTML(html) {
+    while (html) {
+      var textEnd = html.indexOf('<');
+
+      if (textEnd == 0) {
+        var startTagMatch = parseStartTag();
+
+        if (startTagMatch) {
+          start(startTagMatch.tagName, startTagMatch.attrs);
+          continue;
+        }
+
+        var endTagMatch = html.match(endTag);
+
+        if (endTagMatch) {
+          advance(endTagMatch[0].length);
+          end(endTagMatch[1]);
+          continue;
+        }
+      }
+
+      var text = void 0;
+
+      if (textEnd >= 0) {
+        text = html.substring(0, textEnd);
+      }
+
+      if (text) {
+        advance(text.length);
+        chars(text);
+      }
+    }
+
+    function advance(n) {
+      html = html.substring(n);
+    }
+
+    function parseStartTag() {
+      var start = html.match(startTagOpen);
+
+      if (start) {
+        var match = {
+          tagName: start[1],
+          attrs: []
+        };
+        advance(start[0].length);
+
+        var attr, _end;
+
+        while (!(_end = html.match(startTagClose)) && (attr = html.match(attribute))) {
+          advance(attr[0].length);
+          match.attrs.push({
+            name: attr[1],
+            value: attr[3]
+          });
+        }
+
+        if (_end) {
+          advance(_end[0].length);
+          return match;
+        }
+      }
+    }
+  }
+
+  function compileToFunction(template) {
+    parseHTML(template); // console.log(root)
+    // 需要将ast语法树生成最终的render函数  就是字符串拼接（模版引擎）
+
+    var code = generate(root); // console.log(code)
+
+    var render = "with(this){return ".concat(code, "}");
+    var renderFn = new Function(render);
+    console.log(renderFn);
+    return renderFn;
+  }
+
+  function gen(node) {
+    if (node.type == 1) {
+      return generate(node);
+    } else {
+      var text = node.text;
+
+      if (!defaultTagRE.test(text)) {
+        return "_v(".concat(JSON.stringify(text), ")");
+      }
+
+      var lastIndex = defaultTagRE.lastIndex = 0;
+      var tokens = [];
+      var match, index;
+
+      while (match = defaultTagRE.exec(text)) {
+        index = match.index;
+
+        if (index > lastIndex) {
+          tokens.push(JSON.stringify(text.slice(lastIndex, index)));
+        }
+
+        tokens.push("_s(".concat(match[1].trim(), ")"));
+        lastIndex = index + match[0].length;
+      }
+
+      if (lastIndex < text.length) {
+        tokens.push(JSON.stringify(text.slice(lastIndex)));
+      }
+
+      return "_v(".concat(tokens.join('+'), ")");
+    }
+  }
+
+  function getChildren(el) {
+    // 生成儿子节点
+    var children = el.children;
+
+    if (children) {
+      return "".concat(children.map(function (c) {
+        return gen(c);
+      }).join(','));
+    } else {
+      return false;
+    }
+  }
+
+  function genProps(attrs) {
+    // 生成属性
+    var str = '';
+
+    for (var i = 0; i < attrs.length; i++) {
+      var attr = attrs[i];
+
+      if (attr.name === 'style') {
+        (function () {
+          var obj = {};
+          attr.value.split(';').forEach(function (item) {
+            var _item$split = item.split(':'),
+                _item$split2 = _slicedToArray(_item$split, 2),
+                key = _item$split2[0],
+                value = _item$split2[1];
+
+            obj[key] = value;
+          });
+          attr.value = obj;
+        })();
+      }
+
+      str += "".concat(attr.name, ":").concat(JSON.stringify(attr.value), ",");
+    }
+
+    return "{".concat(str.slice(0, -1), "}");
+  }
+
+  function generate(el) {
+    var children = getChildren(el);
+    var code = "_c('".concat(el.tag, "',").concat(el.attrs.length ? "".concat(genProps(el.attrs)) : 'undefined').concat(children ? ",".concat(children) : '', ")");
+    return code;
+  }
+
+  function mountComponent(vm, el) {
+    var options = vm.$options; // 真是的el挂载到$el
+
+    vm.$el = el;
+    console.log(vm); // 渲染页面
+  }
+  function lifecycleMixin(Vue) {
+    Vue.prototype._update = function (vnode) {};
+  }
+
   function initMixin(Vue) {
     Vue.prototype._init = function (options) {
       // 数据的劫持 当前的实例就是this
@@ -271,8 +563,40 @@
       vm.$options = options;
       initSet(Vue); // 初始化状态
 
-      initState(vm);
+      initState(vm); // 用户传入了人el属性  那么就需要渲染数据
+
+      if (vm.$options.el) {
+        vm.$mount(vm.$options.el);
+      }
     };
+
+    Vue.prototype.$mount = function (el) {
+      var vm = this;
+      var options = vm.$options;
+      el = document.querySelector(el); // 默认会先查找render，没有render，会采用template， temeplate也没有会使用el中的内容
+
+      if (!options.render) {
+        // 对模版进行编译
+        var template = options.template;
+
+        if (!template && el) {
+          // el.outerHTML包含了el所有的元素
+          template = el.outerHTML;
+        } // console.log(template)
+        // 把template变成虚拟节点
+
+
+        var render = compileToFunction(template);
+        options.render = render;
+      } // 需要将当前的组件 挂载这个组件
+
+
+      mountComponent(vm, el);
+    };
+  }
+
+  function renderMixin(Vue) {
+    Vue.prototype._render = function () {};
   }
 
   // Vue的核心代码 这个文件相当于整合的功能
@@ -286,7 +610,9 @@
   // 执行一下 把大 Vue传递进去
 
 
-  initMixin(Vue); // initRender(Vue)
+  initMixin(Vue);
+  renderMixin(Vue);
+  lifecycleMixin(Vue); // initRender(Vue)
   //   console.log('react')
   //   this.a = 'sgjm'
   //   this._init()
