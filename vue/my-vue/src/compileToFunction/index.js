@@ -103,13 +103,13 @@ function parseHTML(html){
 }
 export function compileToFunction(template){
   parseHTML(template);
-  // console.log(root)
+//   console.log(root)
   // 需要将ast语法树生成最终的render函数  就是字符串拼接（模版引擎）
   let code = generate(root);
-  // console.log(code)
+//   console.log(code)
   let render = `with(this){return ${code}}`;
   let renderFn = new Function(render);
-  console.log(renderFn)
+//   console.log(renderFn)
   return renderFn
 }
 

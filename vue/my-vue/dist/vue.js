@@ -284,8 +284,8 @@
     if (opts.methods) ;
 
     if (opts.data) {
-      initData(vm);
-      console.log("111111xxxxx");
+      initData(vm); // console.log("111111xxxxx")
+
       var keys = Object.keys(vm._data); // 这边也是需要进行递归处理的
       // 做一个代理  让用户可以直接通过 实例.xx 获取属性
 
@@ -312,7 +312,7 @@
   }
 
   function initData(vm) {
-    console.log('初始化数据');
+    // console.log('初始化数据')
     var data = vm.$options.data; // data里面的this指向还是实例
 
     data = vm._data = typeof data == 'function' ? data.call(vm) : data; // 初始化数据后，处理数据 让用户可以直接修改data里面的数据
@@ -454,14 +454,14 @@
   }
 
   function compileToFunction(template) {
-    parseHTML(template); // console.log(root)
+    parseHTML(template); //   console.log(root)
     // 需要将ast语法树生成最终的render函数  就是字符串拼接（模版引擎）
 
-    var code = generate(root); // console.log(code)
+    var code = generate(root); //   console.log(code)
 
     var render = "with(this){return ".concat(code, "}");
-    var renderFn = new Function(render);
-    console.log(renderFn);
+    var renderFn = new Function(render); //   console.log(renderFn)
+
     return renderFn;
   }
 
@@ -545,14 +545,105 @@
     return code;
   }
 
+  var Watcher = /*#__PURE__*/function () {
+    function Watcher(vm, exprOrFn, callback, options) {
+      _classCallCheck(this, Watcher);
+
+      this.vm = vm; // this.exprOrFn = exprOrFn
+
+      this.callback = callback;
+      this.options = options; // 将内部传过来的回调函数 放到getter属性上
+
+      this.getter = exprOrFn;
+      this.get();
+    }
+
+    _createClass(Watcher, [{
+      key: "get",
+      value: function get() {
+        this.getter();
+      }
+    }]);
+
+    return Watcher;
+  }();
+
+  function patch(oldVnode, vnode) {
+    // 1.判断是更新还是渲染
+    var isRealElement = oldVnode.nodeType; // 判断是否是真实的元素
+
+    if (isRealElement) {
+      var oldElm = oldVnode; // div id="app"
+
+      var parentEm = oldElm.parentNode; // body
+
+      var el = createElm(vnode); // 插入到老元素的下一个元素
+
+      parentEm.insertBefore(el, oldElm.nextSibling);
+      parentEm.removeChild(oldElm);
+    } // 2.递归创建真实节点 替换掉老得节点
+
+  }
+
+  function createElm(vnode) {
+    // 根据虚拟节点创建真实节点
+    // return document.createElement('div')
+    var tag = vnode.tag,
+        children = vnode.children,
+        key = vnode.key,
+        data = vnode.data,
+        text = vnode.text;
+    console.log(tag); // 是标签就创建标签 // 如果不是标签 就是文本
+
+    if (typeof tag === 'string') {
+      vnode.el = document.createElement(tag); // 往标签上添加属性
+
+      updateProperties(vnode);
+      children.forEach(function (child) {
+        // 递归创建儿子节点, 将儿子节点放入父节点
+        return vnode.el.appendChild(createElm(child));
+      });
+    } else {
+      // 虚拟dom上映射的真实dom  方便后续的更新操作
+      vnode.el = document.createTextNode(text);
+    }
+
+    return vnode.el;
+  }
+
+  function updateProperties(vnode) {
+    var newProps = vnode.data;
+    var keys = Object.keys(newProps);
+    keys.forEach(function (key, index) {
+      vnode.el.setAttribute(key, newProps[key]);
+    });
+  }
+
   function mountComponent(vm, el) {
     var options = vm.$options; // 真是的el挂载到$el
 
-    vm.$el = el;
-    console.log(vm); // 渲染页面
+    vm.$el = el; // console.log(vm)
+    // 渲染页面
+    // 更新组件 
+
+    var updateComponent = function updateComponent() {
+      // 无论是渲染还是更新都会调用此方法
+      // 返回的是虚拟的dom
+      // 虚拟的dom生成真实的dom
+      // vm._render() 获取到的是虚拟的节点
+      vm._update(vm._render());
+    }; // 渲染watcher 每个组件都有一个watcher
+    // 默认渲染wathcer是没有回调的
+
+
+    new Watcher(vm, updateComponent, function () {}, true); // 这是一个渲染watcher
   }
   function lifecycleMixin(Vue) {
-    Vue.prototype._update = function (vnode) {};
+    Vue.prototype._update = function (vnode) {
+      var vm = this;
+      console.log(vnode, 'vnode');
+      vm.$el = patch(vm.$el, vnode);
+    };
   }
 
   function initMixin(Vue) {
@@ -595,8 +686,64 @@
     };
   }
 
+  function createElement(tag) {
+    var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    var key = data.key;
+
+    if (key) {
+      delete data.key;
+    } // 元素的虚拟节点
+
+
+    for (var _len = arguments.length, children = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+      children[_key - 2] = arguments[_key];
+    }
+
+    return vnode(tag, data, key, children, undefined);
+  }
+  function createTextNode(text) {
+    console.log(text, 'text'); // 文本的虚拟节点
+
+    return vnode(undefined, undefined, undefined, undefined, text);
+  } // // 虚拟节点  就是通过 _c _v 实现用对象来描述dom的操作
+
+  function vnode(tag, data, key, children, text) {
+    return {
+      tag: tag,
+      key: key,
+      data: data,
+      children: children,
+      text: text
+    };
+  }
+
   function renderMixin(Vue) {
-    Vue.prototype._render = function () {};
+    // _c 创建元素的虚拟节点
+    // _v 创建文本的虚拟节点
+    // _s JSON.stringify
+    Vue.prototype._c = function () {
+      return createElement.apply(void 0, arguments); // 标签名 属性 children
+    };
+
+    Vue.prototype._v = function (text) {
+      return createTextNode(text);
+    };
+
+    Vue.prototype._s = function (val) {
+      // 变量的值 可能是一个对象  普通字符串直接返回
+      // 是一个对象展示的话 需要JSON.stringify一下 不然页面无法展示
+      return val === '' ? '' : _typeof(val) === 'object' ? JSON.stringify(val) : val;
+    };
+
+    Vue.prototype._render = function () {
+      // console.log('render')
+      var vm = this;
+      var render = vm.$options.render;
+      console.log(render);
+      var vnode = render.call(vm); // 绑定当前的this
+
+      return vnode;
+    };
   }
 
   // Vue的核心代码 这个文件相当于整合的功能

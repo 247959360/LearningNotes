@@ -40,6 +40,7 @@ export function initMixin(Vue) {
       const render = compileToFunction(template)
       options.render = render
     }
+    
     // 需要将当前的组件 挂载这个组件
     mountComponent(vm, el)
   }

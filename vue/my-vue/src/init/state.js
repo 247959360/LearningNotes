@@ -13,7 +13,7 @@ export function initState(vm) {
   }
   if(opts.data) {
     initData(vm)
-    console.log("111111xxxxx")
+    // console.log("111111xxxxx")
     let keys = Object.keys(vm._data)
     // 这边也是需要进行递归处理的
     // 做一个代理  让用户可以直接通过 实例.xx 获取属性
@@ -50,7 +50,7 @@ function initMethod(vm) {
 }
 
 function initData(vm) {
-  console.log('初始化数据')
+  // console.log('初始化数据')
   let data = vm.$options.data
   // data里面的this指向还是实例
   data = vm._data = typeof data == 'function' ? data.call(vm) : data

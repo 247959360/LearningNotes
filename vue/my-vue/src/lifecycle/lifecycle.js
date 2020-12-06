@@ -1,9 +1,10 @@
-import { Watcher } from '../observer/watcher'
+import Watcher  from '../observer/watcher'
+import { patch } from '../vdom/patch.js'
 export function mountComponent(vm, el) {
   const options = vm.$options
   // 真是的el挂载到$el
   vm.$el = el
-  console.log(vm)
+  // console.log(vm)
   // 渲染页面
   // 更新组件 
   let updateComponent = () => { // 无论是渲染还是更新都会调用此方法
@@ -19,6 +20,8 @@ export function mountComponent(vm, el) {
 
 export function lifecycleMixin(Vue) {
   Vue.prototype._update = function(vnode) {
-    
+    const vm = this
+    console.log(vnode, 'vnode')
+    vm.$el = patch(vm.$el, vnode)
   }
 }
