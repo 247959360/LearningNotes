@@ -62,6 +62,8 @@ function defineReactive(data, key, value) {
   observer(value)
   Object.defineProperty(data, key, {
     // 获取值的时候 做一些操作
+    configurable: true,
+    enumerable: true,
     get() {
       return value
     },

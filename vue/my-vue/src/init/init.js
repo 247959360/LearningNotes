@@ -2,21 +2,32 @@ import { initState } from './state.js'
 import { initSet } from '../observer/index.js'
 import { createLogger } from 'vuex'
 import { compileToFunction } from '../compileToFunction/index.js'
-import { mountComponent } from '../lifecycle/lifecycle.js'
+import { mountComponent, callHook } from '../lifecycle/lifecycle.js'
 // 在原型上添加一个init方法
+import { mergeOptions } from '../util/index.js'
 export function initMixin(Vue) {
   Vue.prototype._init = function(options) {
     // 数据的劫持 当前的实例就是this
     const vm = this
     // this.$options 指代的就是用户传递的属性
-    vm.$options = options
+    // vm.$options = options
     
+    // 将用户传递的和全局的合并  vm.constructor 指代的是子类
+    // console.log(vm.constructor.options, 'vm.constructor.options')
+    // console.log(options, 'options')
+    // vm.constructor.options 保证谁调了这个类，options就指向谁
+    // vue里面有extends方法  这个看看
+    vm.$options = mergeOptions(vm.constructor.options, options)
+    // 执行初始化的生命周期 beforeCreate 数据还没有被观察过，此时就没有什么get set这种东西
+    callHook(vm, 'beforeCreate')
+    
+    // 设置$set 定义响应式数据   这个响应式方法  会对数据进行观察
     initSet(Vue)
+
     // 初始化状态
     initState(vm)
-
-    
-
+    // 此时数据已经被观察过了
+    callHook(vm, 'created')
 
     // 用户传入了人el属性  那么就需要渲染数据
     if(vm.$options.el) {

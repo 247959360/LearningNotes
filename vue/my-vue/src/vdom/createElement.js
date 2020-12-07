@@ -13,7 +13,7 @@ export function createTextNode(text) {
   return vnode(undefined, undefined, undefined, undefined, text)
 }
 
-// // 虚拟节点  就是通过 _c _v 实现用对象来描述dom的操作
+// 虚拟节点  就是通过 _c _v 实现用对象来描述dom的操作
 function vnode(tag, data, key, children, text) {
   return {
     tag: tag,

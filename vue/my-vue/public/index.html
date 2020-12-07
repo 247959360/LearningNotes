@@ -19,7 +19,19 @@
         return { name: 'sgjm', age: 18 }
       },
       computed() {},
-      watch() {}
+      watch() {},
+      beforeCreate() {
+        console.log("user")
+      },
+      created() {
+        console.log(this.age, 'this.age')
+      },
+      beforeMount() {
+        console.log(this.el, 'beforeMount')
+      },
+      mounted() {
+        console.log(this.el, 'mounted')
+      }
     })
     // 这样操作不方便 当用户可以直接改
     // 如果设置的值是一个对象  还需要在进行劫持
