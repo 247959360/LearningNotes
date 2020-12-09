@@ -8,7 +8,7 @@ export function createElement(tag, data = {}, ...children) {
 }
 
 export function createTextNode(text) {
-  console.log(text, 'text')
+  // console.log(text, 'text')
   // 文本的虚拟节点
   return vnode(undefined, undefined, undefined, undefined, text)
 }

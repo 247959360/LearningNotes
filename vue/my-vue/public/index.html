@@ -7,7 +7,6 @@
 </head>
 <body>
   <div id="app">
-    <p>hello {{name}}</p>
     <span>{{age}}</span>
   </div>
   <script src="../dist/vue.js" type="text/javascript"></script>
@@ -52,6 +51,18 @@
     // with(vm) { // with就相当于改变了当前取值的作用域
     //   console.log(name, "name的值")
     // }
+    // 调用render方法  就会进行取值， 取值的化就会走数据劫持的get方法
+    setTimeout(() => {
+      vm.age = 1000
+      vm.age = 101
+      // vm.age = 101
+      // vm.age = 102
+      // 属性变了  调用_render 方法 获取新的虚拟dom， 重新更新数据_update
+      // 手动渲染数据  还有ast语法树 生成jsx语法那块也需要处理
+      // 这里vm.age 只是改变值  没有改变ast语法树的节点
+      // vm._update(vm._render()) // 数据变化重新执行渲染watcher
+    }, 1000)
+    // console.log(vm)
   </script>
 </body>
 

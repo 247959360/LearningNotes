@@ -204,7 +204,7 @@
       // 生命周期单独的策略去合并
       // watch computed 等各种合并 采用不同的策略
       if (strats[key]) {
-        console.log("1111");
+        // console.log("1111")
         return options[key] = strats[key](parent[key], child[key]);
       }
 
@@ -259,6 +259,46 @@
       return result;
     };
   });
+
+  var id = 0;
+
+  var Dep = /*#__PURE__*/function () {
+    function Dep() {
+      _classCallCheck(this, Dep);
+
+      this.id = id++;
+      this.subs = []; // age: [] 对应了很多个watcher
+    }
+
+    _createClass(Dep, [{
+      key: "depend",
+      value: function depend() {
+        this.subs.push(Dep.target); // 观察者模式  数据变了，就进行更新
+      }
+    }, {
+      key: "notify",
+      value: function notify() {
+        this.subs.forEach(function (watcher) {
+          watcher.update();
+        });
+      }
+    }]);
+
+    return Dep;
+  }(); // 一个变量可能有多个watch
+  var stack = []; // 第一次调用时 Dep.target 是渲染watcher
+
+  function pushTarget(watcher) {
+    Dep.target = watcher;
+    console.log(watcher.id, '当前的watcher的id');
+    stack.push(watcher);
+  } // 移除时把渲染watcher去除
+
+  function popTarget() {
+    stack.pop();
+    Dep.target = stack[stack.length - 1];
+    console.log(stack, '当前的stack');
+  }
 
   var Observer = /*#__PURE__*/function () {
     function Observer(value) {
@@ -326,12 +366,21 @@
 
   function defineReactive(data, key, value) {
     // console.log(key, value)
+    var dep = new Dep();
     observer(value);
     Object.defineProperty(data, key, {
       // 获取值的时候 做一些操作
       configurable: true,
       enumerable: true,
       get: function get() {
+        console.log("取值");
+
+        if (Dep.target) {
+          // 如果当前有watcher了
+          // 取值的时候 先把wathcer存起来
+          dep.depend(); // 我要将watcher存起来
+        }
+
         return value;
       },
       // 设置值的时候 做一些操作
@@ -340,7 +389,9 @@
         if (newValue === value) return; // 设置的值是对象  还需要再次进行数据的劫持
 
         observer(newValue);
-        value = newValue;
+        value = newValue; // 设置值的时候  通知依赖的wathcer来进行更新操作
+
+        dep.notify();
       }
     });
   }
@@ -448,7 +499,7 @@
 
   var root;
   var currentParent;
-  var stack = [];
+  var stack$1 = [];
   var ELEMENT_TYPE = 1;
   var TEXT_TYPE = 3;
 
@@ -470,12 +521,12 @@
     }
 
     currentParent = element;
-    stack.push(element);
+    stack$1.push(element);
   }
 
   function end(tagName) {
-    var element = stack.pop();
-    currentParent = stack[stack.length - 1];
+    var element = stack$1.pop();
+    currentParent = stack$1[stack$1.length - 1];
 
     if (currentParent) {
       element.parent = currentParent;
@@ -653,6 +704,8 @@
     return code;
   }
 
+  var id$1 = 0;
+
   var Watcher = /*#__PURE__*/function () {
     function Watcher(vm, exprOrFn, callback, options) {
       _classCallCheck(this, Watcher);
@@ -660,16 +713,27 @@
       this.vm = vm; // this.exprOrFn = exprOrFn
 
       this.callback = callback;
-      this.options = options; // 将内部传过来的回调函数 放到getter属性上
+      this.options = options;
+      this.id = id$1++; // 将内部传过来的回调函数 放到getter属性上
 
       this.getter = exprOrFn;
-      this.get();
+      this.get(); // 调用get方法  会执行渲染watcher
     }
 
     _createClass(Watcher, [{
       key: "get",
       value: function get() {
-        this.getter();
+        // 这里的watcher就是当前的watcher实例
+        pushTarget(this); // 收集watcher  将watcher存在了Dep.target
+
+        this.getter(); // 渲染watcher执行
+
+        popTarget();
+      }
+    }, {
+      key: "update",
+      value: function update() {
+        this.get();
       }
     }]);
 
@@ -702,8 +766,8 @@
         children = vnode.children,
         key = vnode.key,
         data = vnode.data,
-        text = vnode.text;
-    console.log(tag); // 是标签就创建标签 // 如果不是标签 就是文本
+        text = vnode.text; // console.log(tag)
+    // 是标签就创建标签 // 如果不是标签 就是文本
 
     if (typeof tag === 'string') {
       vnode.el = document.createElement(tag); // 往标签上添加属性
@@ -754,8 +818,8 @@
   }
   function lifecycleMixin(Vue) {
     Vue.prototype._update = function (vnode) {
-      var vm = this;
-      console.log(vnode, 'vnode');
+      var vm = this; // console.log(vnode, 'vnode')
+
       vm.$el = patch(vm.$el, vnode);
     };
   } // _update 的patch 此时已经创建了真实的dom
@@ -791,6 +855,7 @@
       initState(vm); // 此时数据已经被观察过了
 
       callHook(vm, 'created'); // 用户传入了人el属性  那么就需要渲染数据
+      // 执行数据的挂载
 
       if (vm.$options.el) {
         vm.$mount(vm.$options.el);
@@ -838,8 +903,8 @@
     return vnode(tag, data, key, children, undefined);
   }
   function createTextNode(text) {
-    console.log(text, 'text'); // 文本的虚拟节点
-
+    // console.log(text, 'text')
+    // 文本的虚拟节点
     return vnode(undefined, undefined, undefined, undefined, text);
   } // 虚拟节点  就是通过 _c _v 实现用对象来描述dom的操作
 
@@ -874,8 +939,8 @@
     Vue.prototype._render = function () {
       // console.log('render')
       var vm = this;
-      var render = vm.$options.render;
-      console.log(render);
+      var render = vm.$options.render; // console.log(render)
+
       var vnode = render.call(vm); // 绑定当前的this
 
       return vnode;
@@ -889,22 +954,23 @@
     Vue.mixin = function (mixin) {
       // 实现两个对象的合并
       this.options = mergeOptions(this.options, mixin);
-    };
-
-    Vue.mixin({
-      a: 1,
-      beforeCreate: function beforeCreate() {
-        console.log('mixin1');
-      },
-      created: function created() {}
-    });
-    Vue.mixin({
-      b: 2,
-      beforeCreate: function beforeCreate() {
-        console.log('mixin2');
-      }
-    }); // vue选项的合并 options合并
+    }; // Vue.mixin({
+    //   a: 1,
+    //   beforeCreate() {
+    //     console.log('mixin1')
+    //   },
+    //   created() {
+    //   }
+    // })
+    // Vue.mixin({
+    //   b: 2,
+    //   beforeCreate() {
+    //     console.log('mixin2')
+    //   }
+    // })
+    // vue选项的合并 options合并
     // console.log(Vue.options, 'options')
+
   }
 
   // Vue的核心代码 这个文件相当于整合的功能

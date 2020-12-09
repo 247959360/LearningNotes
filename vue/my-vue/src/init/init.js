@@ -30,6 +30,7 @@ export function initMixin(Vue) {
     callHook(vm, 'created')
 
     // 用户传入了人el属性  那么就需要渲染数据
+    // 执行数据的挂载
     if(vm.$options.el) {
       vm.$mount(vm.$options.el)
     }

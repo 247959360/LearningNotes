@@ -18,7 +18,7 @@ export function renderMixin(Vue) {
     // console.log('render')
     const vm = this
     const { render } = vm.$options
-    console.log(render)
+    // console.log(render)
     const vnode = render.call(vm) // 绑定当前的this
     return vnode
   }

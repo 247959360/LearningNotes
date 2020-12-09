@@ -8,21 +8,21 @@ export function initGlobalAPI(Vue) {
     // 实现两个对象的合并
     this.options = mergeOptions(this.options, mixin)
   }
-  Vue.mixin({
-    a: 1,
-    beforeCreate() {
-      console.log('mixin1')
-    },
-    created() {
+  // Vue.mixin({
+  //   a: 1,
+  //   beforeCreate() {
+  //     console.log('mixin1')
+  //   },
+  //   created() {
       
-    }
-  })
-  Vue.mixin({
-    b: 2,
-    beforeCreate() {
-      console.log('mixin2')
-    }
-  })
+  //   }
+  // })
+  // Vue.mixin({
+  //   b: 2,
+  //   beforeCreate() {
+  //     console.log('mixin2')
+  //   }
+  // })
   // vue选项的合并 options合并
   // console.log(Vue.options, 'options')
 

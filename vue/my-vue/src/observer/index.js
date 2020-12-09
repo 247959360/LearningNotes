@@ -1,6 +1,7 @@
 // data中的数据 重新定义
 import { isObject, def } from '../util/index'
 import { arrayMethods } from './array'
+import Dep from './dep'
 
 // 递归处理 里面的数据可能很复杂
 class Observer {
@@ -59,12 +60,18 @@ export function observer(data) {
 // data对象里面的key 定义为响应式数据
 function defineReactive(data, key, value) {
   // console.log(key, value)
+  let dep = new Dep()
   observer(value)
   Object.defineProperty(data, key, {
     // 获取值的时候 做一些操作
     configurable: true,
     enumerable: true,
     get() {
+      console.log("取值")
+      if(Dep.target) { // 如果当前有watcher了
+        // 取值的时候 先把wathcer存起来
+        dep.depend() // 我要将watcher存起来
+      }
       return value
     },
     // 设置值的时候 做一些操作
@@ -74,6 +81,8 @@ function defineReactive(data, key, value) {
       // 设置的值是对象  还需要再次进行数据的劫持
       observer(newValue)
       value = newValue
+      // 设置值的时候  通知依赖的wathcer来进行更新操作
+      dep.notify()
     }
   })
 }

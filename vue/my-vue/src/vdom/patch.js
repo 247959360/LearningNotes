@@ -19,7 +19,7 @@ export function patch(oldVnode, vnode) {
 function createElm(vnode) { // 根据虚拟节点创建真实节点
   // return document.createElement('div')
   let { tag, children, key, data, text } = vnode
-  console.log(tag)
+  // console.log(tag)
   // 是标签就创建标签 // 如果不是标签 就是文本
   if(typeof tag === 'string') {
     vnode.el = document.createElement(tag)

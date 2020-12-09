@@ -62,7 +62,7 @@ export function mergeOptions(parent, child) {
     // 生命周期单独的策略去合并
     // watch computed 等各种合并 采用不同的策略
     if(strats[key]) {
-      console.log("1111")
+      // console.log("1111")
       return options[key] = strats[key](parent[key], child[key])
     }
     if(typeof parent[key] === 'object' && typeof child[key] == 'object') {
