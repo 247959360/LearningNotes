@@ -80,8 +80,13 @@ function defineReactive(data, key, value) {
         // 取值的时候 先把wathcer存起来
         dep.depend() // 我要将watcher存起来
         // 如果当前取值的时候，childOb是一个对象或者数组时
-        if(childOb) {
-          childOb.dep.depend() // 数组的依赖收集
+        if(childOb) { // 对象的依赖会收集 但是会被抛弃掉
+          // childOb.dep.depend() // 数组的依赖收集
+          // 当前是数组 需要进行依赖的收集  并且做一次循环递归处理
+          // 防止数组里面套数组  依赖收集不全
+          if(Array.isArray(value)) {
+            dependArray(value)
+          }
         }
       }
       return value
@@ -104,6 +109,17 @@ export function initSet(Vue, vm) {
     // 响应式处理
     defineReactive(target, key, value)
     // vm._data = target
+  }
+}
+
+function dependArray(value) {
+  for(let i = 0; i < value.length; i++) {
+    let current = value[i]
+    current.__ob__ && current.__ob__.dep.depend()
+    if(Array.isArray(current)) {
+      // 依赖收集数组的依赖
+      dependArray(current)
+    }
   }
 }
 
