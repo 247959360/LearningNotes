@@ -229,15 +229,14 @@
   var methods = ['unshift', 'shift', 'pop', 'push', 'splice', 'sort', 'reverse'];
   methods.forEach(function (method, index) {
     arrayMethods[method] = function () {
-      console.log('用户改变了数组');
-
       for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
         args[_key] = arguments[_key];
       }
 
+      // console.log('用户改变了数组')
       var result = oldArrayMethods[method].apply(this, args);
-      var ob = this.__ob__;
-      console.log(ob, 'ob方法');
+      var ob = this.__ob__; // console.log(ob, 'ob方法')
+
       var inserted; // 插入的元素是对象还需要在劫持
       // 获取到插入的数据
 
@@ -252,9 +251,11 @@
       }
 
       if (inserted) {
-        console.log(inserted, 'inserted');
+        // console.log(inserted, 'inserted')
         ob.observerArray(inserted);
       }
+
+      ob.dep.notify(); // 如果用户调用了 push，通知当前的dep更新
 
       return result;
     };
@@ -268,12 +269,35 @@
 
       this.id = id++;
       this.subs = []; // age: [] 对应了很多个watcher
+
+      this.watcherId = new Set();
+      this.watchers = [];
     }
 
     _createClass(Dep, [{
       key: "depend",
       value: function depend() {
-        this.subs.push(Dep.target); // 观察者模式  数据变了，就进行更新
+        // 观察者模式  数据变了，就进行更新
+        // 判断当前的watcher是否重复
+        // this.subs.push(Dep.target)
+        // console.log(this.subs, this.id, 'this.subs')
+        // return
+        // for(let i = 0; i < this.subs.length; i++) {
+        //   if(this.subs[i].id !== Dep.target.id) {
+        //     this.subs.push(Dep.target)
+        //   }
+        // }
+        // if(this.subs.length === 0) {
+        //   this.subs.push(Dep.target)
+        // }
+        // // console.log(this.id, 'this.id')
+        // // 相同的wathcer只存放一个
+        // console.log(this.subs, 'this.subs')
+        // console.log(Dep.target.id, 'Dep.target.id')
+        // 上面是我自己解决的方式
+        // watcher 记住当前的Dep实例
+        console.log("".concat(this.id, "---------------this.id"));
+        Dep.target.addDep(this);
       }
     }, {
       key: "notify",
@@ -281,6 +305,17 @@
         this.subs.forEach(function (watcher) {
           watcher.update();
         });
+      } // dep中存放watcher
+
+    }, {
+      key: "addSub",
+      value: function addSub(watcher) {
+        this.subs.push(watcher); // console.log(this.subs, `${this.id}---------------this.id`)
+        // let id = watcher.id
+        // if(!this.watcherId.has(id)) {
+        //   this.watcherId.add(id)
+        //   this.watchers.push(watcher)
+        // }
       }
     }]);
 
@@ -289,25 +324,26 @@
   var stack = []; // 第一次调用时 Dep.target 是渲染watcher
 
   function pushTarget(watcher) {
-    Dep.target = watcher;
-    console.log(watcher.id, '当前的watcher的id');
+    Dep.target = watcher; // console.log(watcher.id, '当前的watcher的id')
+
     stack.push(watcher);
   } // 移除时把渲染watcher去除
 
   function popTarget() {
     stack.pop();
-    Dep.target = stack[stack.length - 1];
-    console.log(stack, '当前的stack');
+    Dep.target = stack[stack.length - 1]; // console.log(stack, '当前的stack')
   }
 
   var Observer = /*#__PURE__*/function () {
     function Observer(value) {
       _classCallCheck(this, Observer);
 
-      // 如果数据的层次过多 需要递归的去解析对象中的属性  依次增加 get和set
+      // 创建一个dep属性给数组使用
+      this.dep = new Dep(); // 如果数据的层次过多 需要递归的去解析对象中的属性  依次增加 get和set
       // vue3 使用了proxy 就不需要依次的递归了 支持监听整个对象 也不需要set和get
       // 给每一个监控过的对象都加一个 __ob__ 属性 指向当前的Observer实例
       // value.__ob__ = this
+
       def(value, '__ob__', this); // Object.defineProperty(value, '__ob__', {
       //   // 不可被枚举
       //   enumerable: false,
@@ -347,7 +383,8 @@
     }]);
 
     return Observer;
-  }();
+  }(); // 判断数组里面的值是否还是对象，是对象继续继续观察，不是的话就停止观察
+
 
   function observer(data) {
     // 数据的劫持
@@ -366,19 +403,28 @@
 
   function defineReactive(data, key, value) {
     // console.log(key, value)
+    // 这个是依赖的实例  依赖的实例  没有
     var dep = new Dep();
-    observer(value);
+    console.log("初始化进行了数据的劫持"); // observer返回的就是一个Observer实例
+    // 这里传递进去的value有可能是一个数组，也有可能是一个对象
+
+    var childOb = observer(value);
     Object.defineProperty(data, key, {
       // 获取值的时候 做一些操作
       configurable: true,
       enumerable: true,
       get: function get() {
-        console.log("取值");
+        console.log("取值"); // 这个是Dep大类的Target 渲染一次就有了
 
         if (Dep.target) {
           // 如果当前有watcher了
           // 取值的时候 先把wathcer存起来
           dep.depend(); // 我要将watcher存起来
+          // 如果当前取值的时候，childOb是一个对象或者数组时
+
+          if (childOb) {
+            childOb.dep.depend(); // 数组的依赖收集
+          }
         }
 
         return value;
@@ -714,7 +760,10 @@
 
       this.callback = callback;
       this.options = options;
-      this.id = id$1++; // 将内部传过来的回调函数 放到getter属性上
+      this.id = id$1++; // 集合不能重复
+
+      this.depsId = new Set();
+      this.deps = []; // 将内部传过来的回调函数 放到getter属性上
 
       this.getter = exprOrFn;
       this.get(); // 调用get方法  会执行渲染watcher
@@ -733,7 +782,26 @@
     }, {
       key: "update",
       value: function update() {
+        console.log("执行了更新了111");
         this.get();
+      } // wathcer中存放Dep
+
+    }, {
+      key: "addDep",
+      value: function addDep(dep) {
+        // watcher不能放重复的Dep， Dep里不能放重复的watcher
+        var id = dep.id;
+
+        if (!this.depsId.has(id)) {
+          this.depsId.add(id); // 保存当前的dep
+
+          this.deps.push(dep); // 当前的watcher存放进去
+
+          dep.addSub(this);
+        } // 这个wacther 对应了两个Dep
+
+
+        console.log(this.deps);
       }
     }]);
 

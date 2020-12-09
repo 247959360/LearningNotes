@@ -6,6 +6,8 @@ import Dep from './dep'
 // 递归处理 里面的数据可能很复杂
 class Observer {
   constructor(value) {
+    // 创建一个dep属性给数组使用
+    this.dep = new Dep()
     // 如果数据的层次过多 需要递归的去解析对象中的属性  依次增加 get和set
     // vue3 使用了proxy 就不需要依次的递归了 支持监听整个对象 也不需要set和get
     // 给每一个监控过的对象都加一个 __ob__ 属性 指向当前的Observer实例
@@ -43,6 +45,7 @@ class Observer {
   }
 }
 
+// 判断数组里面的值是否还是对象，是对象继续继续观察，不是的话就停止观察
 export function observer(data) {
   // 数据的劫持
   // console.log("数据的劫持")
@@ -60,17 +63,26 @@ export function observer(data) {
 // data对象里面的key 定义为响应式数据
 function defineReactive(data, key, value) {
   // console.log(key, value)
+  // 这个是依赖的实例  依赖的实例  没有
   let dep = new Dep()
-  observer(value)
+  console.log("初始化进行了数据的劫持")
+  // observer返回的就是一个Observer实例
+  // 这里传递进去的value有可能是一个数组，也有可能是一个对象
+  let childOb = observer(value)
   Object.defineProperty(data, key, {
     // 获取值的时候 做一些操作
     configurable: true,
     enumerable: true,
     get() {
       console.log("取值")
+      // 这个是Dep大类的Target 渲染一次就有了
       if(Dep.target) { // 如果当前有watcher了
         // 取值的时候 先把wathcer存起来
         dep.depend() // 我要将watcher存起来
+        // 如果当前取值的时候，childOb是一个对象或者数组时
+        if(childOb) {
+          childOb.dep.depend() // 数组的依赖收集
+        }
       }
       return value
     },

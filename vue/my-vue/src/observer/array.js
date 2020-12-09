@@ -18,10 +18,10 @@ const methods = [
 
 methods.forEach((method, index) => {
   arrayMethods[method] = function(...args) {
-    console.log('用户改变了数组')
+    // console.log('用户改变了数组')
     const result = oldArrayMethods[method].apply(this, args)
     let ob = this.__ob__
-    console.log(ob, 'ob方法')
+    // console.log(ob, 'ob方法')
     let inserted // 插入的元素是对象还需要在劫持
     // 获取到插入的数据
     switch (method) {
@@ -35,9 +35,10 @@ methods.forEach((method, index) => {
         break;
     }
     if(inserted) {
-      console.log(inserted, 'inserted')
+      // console.log(inserted, 'inserted')
       ob.observerArray(inserted)
     }
-    return result
+    ob.dep.notify() // 如果用户调用了 push，通知当前的dep更新
+    return  result
   }
 })
