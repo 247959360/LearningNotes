@@ -15,6 +15,7 @@ function Vue(options) {
 // 初始化全局化 API
 initGlobalAPI(Vue)
 
+// 先进性数据的初始化
 initMixin(Vue)
 renderMixin(Vue)
 lifecycleMixin(Vue)

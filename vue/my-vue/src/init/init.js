@@ -37,6 +37,7 @@ export function initMixin(Vue) {
       vm.$mount(vm.$options.el)
     }
   }
+  // 首先进行数据等一系列的初始化 挂载元素是，会对当前的模版进行一个编译
   Vue.prototype.$mount = function(el) {
     const vm = this
     const options = vm.$options

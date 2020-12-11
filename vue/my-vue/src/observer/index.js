@@ -40,6 +40,7 @@ class Observer {
   observerArray(value) {
     // 判断数组是否还有对象  也是需要进行劫持的
     value.forEach((item, index) => {
+      // 循环数组的每一项进行数组的劫持
       observer(item)
     })
   }
@@ -85,6 +86,8 @@ function defineReactive(data, key, value) {
           // 当前是数组 需要进行依赖的收集  并且做一次循环递归处理
           // 防止数组里面套数组  依赖收集不全
           if(Array.isArray(value)) {
+            console.log("进入数组的劫持")
+            console.log(value)
             dependArray(value)
           }
         }
@@ -115,10 +118,12 @@ export function initSet(Vue, vm) {
 function dependArray(value) {
   for(let i = 0; i < value.length; i++) {
     let current = value[i]
-    // console.log(value, 'dependArray')
     current.__ob__ && current.__ob__.dep.depend()
     if(Array.isArray(current)) {
       // 依赖收集数组的依赖
+      console.log(current.__ob__, current, '数组')
+      // 在一开始的数据劫持的时候  已经把所有对象都观测过了
+      // 是数组，就对数组的每一项进行依赖进行收集
       dependArray(current)
     }
   }
