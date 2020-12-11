@@ -5,6 +5,8 @@ import { compileToFunction } from '../compileToFunction/index.js'
 import { mountComponent, callHook } from '../lifecycle/lifecycle.js'
 // 在原型上添加一个init方法
 import { mergeOptions } from '../util/index.js'
+import { nextTick } from '../util/next-tick.js'
+
 export function initMixin(Vue) {
   Vue.prototype._init = function(options) {
     // 数据的劫持 当前的实例就是this
@@ -56,4 +58,5 @@ export function initMixin(Vue) {
     // 需要将当前的组件 挂载这个组件
     mountComponent(vm, el)
   }
+  Vue.prototype.$nextTick = nextTick // 初始化nextTick
 }

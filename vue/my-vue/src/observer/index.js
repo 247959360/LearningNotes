@@ -115,6 +115,7 @@ export function initSet(Vue, vm) {
 function dependArray(value) {
   for(let i = 0; i < value.length; i++) {
     let current = value[i]
+    // console.log(value, 'dependArray')
     current.__ob__ && current.__ob__.dep.depend()
     if(Array.isArray(current)) {
       // 依赖收集数组的依赖

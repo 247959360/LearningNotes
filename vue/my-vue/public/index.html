@@ -7,7 +7,7 @@
 </head>
 <body>
   <div id="app">
-    {{ arr }}
+    {{ arr[0].a }}
   </div>
   <script src="../dist/vue.js" type="text/javascript"></script>
   
@@ -15,7 +15,7 @@
     let vm = new Vue({
       el: '#app',
       data() {
-        return { name: 'sgjm', age: { age: 18 }, arr: [[1], 2] }
+        return { name: 'sgjm', age: { age: 18 }, arr: [{a: 28}, 2] }
       },
       computed() {},
       watch() {},
@@ -74,7 +74,20 @@
     // vm.age.age = 100
     // vm.name = 100
     // console.log(vm)
-    vm.arr[0].push(11)
+    setTimeout(() => {
+      vm.arr[0].a = 40
+      vm.arr[0].a = 41
+      vm.arr[0].a = 42
+      vm.arr[0].a = 43
+      vm.arr[0].a = 44
+      vm.arr[0].a = 45
+      // 因为使用了异步更新  用户就无法立即拿到里面的内容了
+      
+      vm.$nextTick(() => {
+        console.log(vm.$el.innerHTML, 'vm.$el.innerHTML')
+      })
+
+    }, 2000)
   </script>
 </body>
 

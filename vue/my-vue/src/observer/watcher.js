@@ -1,4 +1,6 @@
 import Dep, { pushTarget, popTarget } from './dep.js'
+import { queueWacther } from './schedular.js'
+
 let id = 0
 class Watcher {
   constructor(vm, exprOrFn, callback, options) {
@@ -21,7 +23,14 @@ class Watcher {
     popTarget()
   }
   update() {
-    console.log("执行了更新了111")
+    // console.log("执行了更新了111")
+    // // 调用update的时候  等待一起更新 因为操作多次
+    // // 都是调用同一个wacther 可以一起进行更新
+    // console.log(this.id)
+    // this.get()
+    queueWacther(this)
+  }
+  run() {
     this.get()
   }
   // wathcer中存放Dep
@@ -35,7 +44,7 @@ class Watcher {
       dep.addSub(this)
     }
     // 这个wacther 对应了两个Dep
-    console.log(this.deps)
+    // console.log(this.deps)
   }
 }
 export default Watcher

@@ -13,6 +13,7 @@ export function mountComponent(vm, el) {
     // 返回的是虚拟的dom
     // 虚拟的dom生成真实的dom
     // vm._render() 获取到的是虚拟的节点
+    console.log('update')
     vm._update(vm._render())
   }
   // 渲染watcher 每个组件都有一个watcher

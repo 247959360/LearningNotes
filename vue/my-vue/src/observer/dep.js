@@ -27,7 +27,7 @@ export default class Dep {
     // console.log(Dep.target.id, 'Dep.target.id')
     // 上面是我自己解决的方式
     // watcher 记住当前的Dep实例
-    console.log(`${this.id}---------------this.id`)
+    // console.log(`${this.id}---------------this.id`)
     Dep.target.addDep(this)
   }
   notify() {
