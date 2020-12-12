@@ -1,5 +1,5 @@
 // Vue的核心代码 这个文件相当于整合的功能
-import { initMixin } from './init/init.js'
+import { init } from './init/init.js'
 import { renderMixin } from './render/render.js'
 import { lifecycleMixin } from './lifecycle/lifecycle.js'
 import { initGlobalAPI } from './initGlobaleAPI/index.js'
@@ -14,9 +14,8 @@ function Vue(options) {
 
 // 初始化全局化 API
 initGlobalAPI(Vue)
-
 // 先进性数据的初始化
-initMixin(Vue)
+init(Vue)
 renderMixin(Vue)
 lifecycleMixin(Vue)
 

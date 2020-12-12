@@ -66,7 +66,7 @@ function defineReactive(data, key, value) {
   // console.log(key, value)
   // 这个是依赖的实例  依赖的实例  没有
   let dep = new Dep()
-  console.log("初始化进行了数据的劫持")
+  // console.log("初始化进行了数据的劫持")
   // observer返回的就是一个Observer实例
   // 这里传递进去的value有可能是一个数组，也有可能是一个对象
   let childOb = observer(value)

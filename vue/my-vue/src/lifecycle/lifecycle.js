@@ -13,7 +13,7 @@ export function mountComponent(vm, el) {
     // 返回的是虚拟的dom
     // 虚拟的dom生成真实的dom
     // vm._render() 获取到的是虚拟的节点
-    console.log('update')
+    // console.log(vm._render(), 'vm._render()')
     vm._update(vm._render())
   }
   // 渲染watcher 每个组件都有一个watcher
@@ -35,6 +35,9 @@ export function lifecycleMixin(Vue) {
 export function callHook(vm, hook) {
   const handles = vm.$options[hook]
   if(handles) {
+    if(handles.length === 0) {
+      handles.call(vm)
+    }
     for(let i = 0; i < handles.length; i++) {
       // 绑定了 当前的this  用户就可以获取当前this
       handles[i].call(vm)

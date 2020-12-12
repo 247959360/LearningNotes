@@ -7,7 +7,7 @@ import { mountComponent, callHook } from '../lifecycle/lifecycle.js'
 import { mergeOptions } from '../util/index.js'
 import { nextTick } from '../util/next-tick.js'
 
-export function initMixin(Vue) {
+export function init(Vue) {
   Vue.prototype._init = function(options) {
     // 数据的劫持 当前的实例就是this
     const vm = this
@@ -49,14 +49,18 @@ export function initMixin(Vue) {
       if(!template && el) {
         // el.outerHTML包含了el所有的元素
         template = el.outerHTML
+        // console.log(template, '111')
       }
       // console.log(template)
       // 把template变成虚拟节点
       const render = compileToFunction(template)
       options.render = render
+      // console.log(options.render, 'options.render')
     }
     
     // 需要将当前的组件 挂载这个组件
+    // 先挂载父元素  在挂载子元素
+    // console.log(el, 'el')
     mountComponent(vm, el)
   }
   Vue.prototype.$nextTick = nextTick // 初始化nextTick

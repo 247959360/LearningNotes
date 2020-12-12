@@ -31,13 +31,16 @@ export default class Dep {
     Dep.target.addDep(this)
   }
   notify() {
+    // 每个组件都有自己的watcher
     this.subs.forEach((watcher) => {
+      // console.log(watcher, "xxxxxx")
       watcher.update()
     })
   }
   // dep中存放watcher
   addSub(watcher) {
     this.subs.push(watcher)
+    // console.log(this.subs, 'this.subs')
     // console.log(this.subs, `${this.id}---------------this.id`)
     // let id = watcher.id
     // if(!this.watcherId.has(id)) {

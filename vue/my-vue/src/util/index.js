@@ -1,3 +1,5 @@
+import { ASSETS_TYPE } from '../initGlobaleAPI/const.js'
+
 export function isObject(data) {
   if (typeof data === 'object' && data !== null) {
     return true;
@@ -77,4 +79,28 @@ export function mergeOptions(parent, child) {
     }
   }
   return options
+}
+
+ASSETS_TYPE.forEach((type) => {
+  strats[type + 's'] = mergeAssets
+})
+// 组件的合并策略
+// strats.components = mergeAssets()
+function mergeAssets(parentVal, childVal) {
+  // Object.create 相当于 res.__proto__ == parentVal
+  // res 相当于拷贝一份父亲的原型 也就是__proto__ 指向的是父元素
+  const res = Object.create(parentVal)
+  // console.log(res, 'parentVal------childVal')
+  // 把子元素的东西放到res上面  作为属性
+  if(childVal) {
+    for(let key in childVal) {
+      res[key] = childVal[key]
+    }
+  }
+  return res
+}
+
+export function isReservedTag(tag) {
+  let arr = ['a', 'div', 'span', 'h', 'button', 'input', 'p']
+  return arr.includes(tag)
 }

@@ -9,6 +9,7 @@ const defaultTagRE = /\{\{((?:.|\r?\n)+?)\}\}/g // 匹配vue的模版语法 {{}}
 
 // 正则
 // 匹配标签、匹配属性
+// 这里将变量写成全局  所以会互相影响了
 let root;
 let currentParent;
 let stack = [];
@@ -104,7 +105,11 @@ function parseHTML(html){
   return root
 }
 export function compileToFunction(template){
-  let root = parseHTML(template);
+  // 解析前  先清空一下数据
+  root = ''
+  currentParent = ''
+  stack = []
+  root = parseHTML(template);
   //   console.log(root)
   // 需要将ast语法树生成最终的render函数  就是字符串拼接（模版引擎）
   let code = generate(root);

@@ -4,10 +4,10 @@ export function renderMixin(Vue) {
   // _v 创建文本的虚拟节点
   // _s JSON.stringify
   Vue.prototype._c = function() {
-    return createElement(...arguments) // 标签名 属性 children
+    return createElement(this, ...arguments) // 标签名 属性 children
   }
   Vue.prototype._v = function(text) {
-    return createTextNode(text)
+    return createTextNode(this, text)
   }
   Vue.prototype._s = function(val) {
     // 变量的值 可能是一个对象  普通字符串直接返回
@@ -18,9 +18,9 @@ export function renderMixin(Vue) {
     // console.log('render')
     const vm = this
     const { render } = vm.$options
-    // console.log(render)
     const vnode = render.call(vm) // 绑定当前的this
-    console.log(vnode, 'vnode')
+    // console.log(render, 'xxxxxxx')
+    // console.log(vnode, 'vnode')
     return vnode
   }
 }

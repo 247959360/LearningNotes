@@ -1,13 +1,41 @@
 import { mixin } from 'vue/types/umd'
 import { mergeOptions } from '../util/index.js'
+import { initMixin } from './mixin.js'
+import { initAssetRegisters } from './asset'
+import { initExtend } from './initExtend'
+import { ASSETS_TYPE } from './const.js'
+
 export function initGlobalAPI(Vue) {
   // 整个了所以全局相关的内容
   Vue.options = {}
-  
-  Vue.mixin = function(mixin) {
-    // 实现两个对象的合并
-    this.options = mergeOptions(this.options, mixin)
-  }
+  // 混入一些全局的API
+  initMixin(Vue)
+  // 初始化的全局过滤器 指令 组件
+  ASSETS_TYPE.forEach((type) => {
+    Vue.options[type + 's'] = {}
+  })
+
+  Vue.options._base = Vue // _base 是Vue的构造函数  也就是根Vue 永远指向父类
+
+  // 注册extend方法 实现组件的继承
+  initExtend(Vue)
+
+  // 注册一些全局的方法
+  initAssetRegisters(Vue)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   // Vue.mixin({
   //   a: 1,
   //   beforeCreate() {
