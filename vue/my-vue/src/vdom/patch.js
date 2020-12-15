@@ -43,7 +43,7 @@ function createComponent(vnode) { // 初始化的作用
   // console.log(vnode.componentOptions.Ctor, 'vnode.componentOptions.Ctor')
 }
 
-function createElm(vnode) { // 根据虚拟节点创建真实节点
+export function createElm(vnode) { // 根据虚拟节点创建真实节点
   // return document.createElement('div')
   let { tag, children, key, data, text } = vnode
   // console.log(children, 'children')

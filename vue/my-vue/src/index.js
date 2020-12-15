@@ -20,6 +20,8 @@ renderMixin(Vue)
 lifecycleMixin(Vue)
 
 
+// demo  产生两个虚拟节点进行比对
+// template =》 render方法 =》 vnode
 
 // initRender(Vue)
 export default Vue
