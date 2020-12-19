@@ -17,6 +17,7 @@ export function initExtend(Vue) {
   // 父类调用的是_init 进行出始化
   // 每个组件都有一个标记 防止组件多次调用名字重复了
   let cid = 0
+  // extend 方法会进行选项的合并
   Vue.extend = function(extendOptions) {
     let Sub = function VueComponent(options) {
       this._init(options)
@@ -33,6 +34,32 @@ export function initExtend(Vue) {
     // 子类的mixin use component等方法
     // 可以通过
     Sub.mixin = this.mixin
+    console.log(Sub.options, 'Sub.options')
+    if (Sub.options.props) {
+      // initProps(Sub)
+      // function initProps (Comp) {
+      // 首先初始化 子组件的props属性 也就是进行一个代理 放在组件的
+      // 做一个响应式的拦截  对组件的数据进行响应式拦截 以及依赖的收集
+      // initProps(Sub)
+      
+    }
     return Sub
   }
 }
+
+// function initProps (Comp) {
+//   const props = Comp.options.props
+//   for (const key in props) {
+//     proxy(Comp.prototype, `_props`, key)
+//   }
+// }
+
+// export function proxy (target: Object, sourceKey: string, key: string) {
+//   sharedPropertyDefinition.get = function proxyGetter () {
+//     return this[sourceKey][key]
+//   }
+//   sharedPropertyDefinition.set = function proxySetter (val) {
+//     this[sourceKey][key] = val
+//   }
+//   Object.defineProperty(target, key, sharedPropertyDefinition)
+// }

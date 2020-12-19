@@ -50,6 +50,7 @@ export function createTextNode(vm, text) {
 }
 
 // 虚拟节点  就是通过 _c _v 实现用对象来描述dom的操作
+// componentOptions props会作为这个的一个参数传入 进行创建vnode
 function vnode(tag, data, key, children, text, componentOptions) {
   return {
     tag: tag,

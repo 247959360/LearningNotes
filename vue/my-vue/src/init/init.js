@@ -30,7 +30,7 @@ export function init(Vue) {
     initState(vm)
     // 此时数据已经被观察过了
     callHook(vm, 'created')
-
+    console.log(this, '当前的this')
     // 用户传入了人el属性  那么就需要渲染数据
     // 执行数据的挂载
     if(vm.$options.el) {

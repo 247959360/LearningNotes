@@ -35,6 +35,15 @@ LIFECYCLE_HOOKS.forEach(hook => {
   strats[hook] = mergeHook
 })
 
+// strats.props  = mergeProps
+function mergeProps(parentVal,childVal) {
+  // console.log(parentVal, childVal)
+}
+
+function normalizeProps(options, vm) {
+
+}
+
 export function def(data, key, value) {
   Object.defineProperty(data, key, {
     // 不可被枚举
