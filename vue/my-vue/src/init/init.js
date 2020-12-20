@@ -17,6 +17,14 @@ export function init(Vue) {
     // 将用户传递的和全局的合并  vm.constructor 指代的是子类
     // console.log(vm.constructor.options, 'vm.constructor.options')
     // console.log(options, 'options')
+
+
+    // 初始化组件
+    if (options && options._isComponent) {
+      console.log(options, 'options')
+      // initInternalComponent(vm, options)
+    }
+
     // vm.constructor.options 保证谁调了这个类，options就指向谁
     // vue里面有extends方法  这个看看
     vm.$options = mergeOptions(vm.constructor.options, options)
@@ -25,12 +33,12 @@ export function init(Vue) {
     
     // 设置$set 定义响应式数据   这个响应式方法  会对数据进行观察
     initSet(Vue)
-
+    // console.log(vm.props,' vm.props')
     // 初始化状态
     initState(vm)
     // 此时数据已经被观察过了
     callHook(vm, 'created')
-    console.log(this, '当前的this')
+    // console.log(this, '当前的this')
     // 用户传入了人el属性  那么就需要渲染数据
     // 执行数据的挂载
     if(vm.$options.el) {

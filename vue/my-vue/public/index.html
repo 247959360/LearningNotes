@@ -7,8 +7,7 @@
 </head>
 <body>
   <div id="app">
-    <p>{{name}}</p>
-    <my-component age="age" name="name"></my-component>
+    <my-component age="age1000" name="name"></my-component>
   </div>
   <script src="../dist/vue.js" type="text/javascript"></script>
   
@@ -18,16 +17,12 @@
     // 通过new 这个构造函数产生实例
     Vue.component('my-component', {
       props: {
-        name: {
-          type: 'String',
-          default: '100'
-        },
         age: {
           type: 'String',
           default: '100'
         }
       },
-      template: '<div>hello 你好 {{name}}</div>'
+      template: '<div>hello 你好 {{age}}</div>'
     })
     let vm = new Vue({
       el: '#app',

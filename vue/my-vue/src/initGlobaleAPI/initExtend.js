@@ -34,7 +34,9 @@ export function initExtend(Vue) {
     // 子类的mixin use component等方法
     // 可以通过
     Sub.mixin = this.mixin
-    console.log(Sub.options, 'Sub.options')
+    // console.log(Sub.options, 'Sub.options')
+
+    // console.log(Sub.options, 'Sub.options')
     if (Sub.options.props) {
       // initProps(Sub)
       // function initProps (Comp) {

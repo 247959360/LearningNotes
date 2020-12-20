@@ -1,4 +1,4 @@
-import { isObject, isReservedTag } from "../util/index"
+import { isObject, isReservedTag, extractPropsFromVNodeData, def } from "../util/index"
 
 // 创建虚拟节点的时候，他会判断当前元素是否是组件
 // 是组件就会进行单独的处理
@@ -23,6 +23,7 @@ export function createElement(vm, tag, data = {}, ...children) {
   }
 }
 
+// 创建组件 会调用vue的extend方法
 function createComponent(vm, tag, data, key, children, Ctor) {
   if(isObject(Ctor)) {
     // 对组件进行extend继承  让组件拥有和大Vue的能力
@@ -33,14 +34,30 @@ function createComponent(vm, tag, data, key, children, Ctor) {
     init(vnode) {
       // 当前组件的实例  就是 componentInstance
       // 进行组件的一系列的初始化
-      let child = vnode.componentInstance = new Ctor({_isComponent: true})
-      // console.log(child, 'child')
+      // Ctor是一个函数  一个拥有大Vue的构造函数
+      // 实例化组件 需要把props的数据进行初始化处理
+      let child = vnode.componentInstance = new Ctor({ _isComponent: true })
+      console.log(child, 'child')
       // 组件的挂载  因为组件是没有el属性的
+      // 将父组件的传递进来的props 挂载到当前的实例上 值的获取
+      // 真实的vue比这个更加的复杂
+      let props = vnode.componentOptions.propsData
+      let keys = Object.keys(props)
+      keys.forEach((key) => {
+        def(child, key, props[key])
+      })
       child.$mount()
     }
   }
+  // 获取到子组件的props的值
+  console.log(Ctor.options.props)
+  console.log(data, 'xxxxxxx')
+  // 创建虚拟节点的时候  就需要获取当前的值了
+  const propsData = extractPropsFromVNodeData(data, Ctor)
+  console.log(propsData, 'propsData')
   // -${Ctor.cid} 这个标价等下看下
-  return vnode(`vue-coponent-${Ctor.cid}-${tag}`, data, key, undefined, undefined, { Ctor, children })
+  // propsData 会作为componentOptions的一个参数传递进去
+  return vnode(`vue-coponent-${Ctor.cid}-${tag}`, data, key, undefined, undefined, { Ctor, children, propsData })
 }
 
 export function createTextNode(vm, text) {
@@ -54,8 +71,8 @@ export function createTextNode(vm, text) {
 function vnode(tag, data, key, children, text, componentOptions) {
   return {
     tag: tag,
-    key: key,
     data: data,
+    key: key,
     children: children,
     text: text,
     componentOptions

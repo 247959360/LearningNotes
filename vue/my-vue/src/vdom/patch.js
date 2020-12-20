@@ -24,8 +24,8 @@ export function patch(oldVnode, vnode) {
     // 2.递归创建真实节点 替换掉老得节点
   }
 }
-
-function createComponent(vnode) { // 初始化的作用
+// 创建真实节点的时候 如果是组件  就需要进行初始化组件
+function initCreateComponent(vnode) { // 初始化的作用
   // 组件的初始化
   let i = vnode.data
   if((i = i.hook) && (i = i.init)) {
@@ -38,10 +38,13 @@ function createComponent(vnode) { // 初始化的作用
     // 不是组件
     return false
   }
+  // 组件的注册
+  // const propsData = extractPropsFromVNodeData(data, Ctor, tag)
   // let ctor = new vnode.componentOptions.Ctor()
   // console.log(ctor, 'ctor')
   // console.log(vnode.componentOptions.Ctor, 'vnode.componentOptions.Ctor')
 }
+
 
 export function createElm(vnode) { // 根据虚拟节点创建真实节点
   // return document.createElement('div')
@@ -55,7 +58,7 @@ export function createElm(vnode) { // 根据虚拟节点创建真实节点
     // 是组件 创建组件的真实节点
     if(!isReservedTag(tag)) {
       // 返回真实的元素
-      if(createComponent(vnode)) {
+      if(initCreateComponent(vnode)) {
         // console.log("组件")
         // 返回真实的元素节点
         // 创建组件的虚拟节点和真实元素 并返回

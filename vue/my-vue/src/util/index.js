@@ -35,14 +35,15 @@ LIFECYCLE_HOOKS.forEach(hook => {
   strats[hook] = mergeHook
 })
 
-// strats.props  = mergeProps
-function mergeProps(parentVal,childVal) {
+strats.props  = mergeProps
+function mergeProps(parentVal, childVal) {
   // console.log(parentVal, childVal)
+  return childVal
 }
 
-function normalizeProps(options, vm) {
+// function normalizeProps(options, vm) {
 
-}
+// }
 
 export function def(data, key, value) {
   Object.defineProperty(data, key, {
@@ -112,4 +113,16 @@ function mergeAssets(parentVal, childVal) {
 export function isReservedTag(tag) {
   let arr = ['a', 'div', 'span', 'h', 'button', 'input', 'p']
   return arr.includes(tag)
+}
+
+
+export function extractPropsFromVNodeData(data, Ctor, tag) {
+  let propOptions = Ctor.options.props
+  let keys = Object.keys(data)
+  keys.forEach((key, index) => {
+    if(propOptions[key]) {
+      propOptions[key] = data[key]
+    }
+  })
+  return propOptions
 }
