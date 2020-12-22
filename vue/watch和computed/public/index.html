@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    <div>{{ name }}</div>
+  </div>
+  <script src="../dist/vue.js" type="text/javascript"></script>
+  
+  <script>
+    let vm = new Vue({
+      el: '#app',
+      data() {
+        return { name: 'sgjm', age: 20 }
+      },
+      computed: {
+        // watch 在内部会对变量取值  即使不使用
+        // computed特点
+        // 1、默认在内部不会取值，2、computed依赖的值不变就不会重新执行，
+        // 3、computed变量可以用于模版的渲染
+        // 写法  只写了get
+        // 或者写了 get和set
+        allName() {
+          console.log("xxxxx")
+          return this.name + '-' + this.age
+        }
+      },
+      watch: {
+        name(newValue, oldValue) {
+          console.log(newValue, oldValue)
+        }
+      }
+    })
+  </script>
+</body>
+
+</html>

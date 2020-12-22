@@ -1,5 +1,6 @@
 // 初始化状态
 import { observer } from '../observer/index.js'
+import Watcher  from '../observer/watcher'
 export function initState(vm) {
   const opts = vm.$options
   // console.log(opts)
