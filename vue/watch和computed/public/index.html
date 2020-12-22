@@ -29,8 +29,32 @@
           return this.name + '-' + this.age
         }
       },
+      // 如果监控的key 对应的值是一个对象是无法获取老状态
+      // 因为是一个饮用类型 新的改了，老的一定会瘦影响
       watch: {
+        certno: {
+          handler: 'handler'
+        },
         name(newValue, oldValue) {
+          console.log(newValue, oldValue)
+        },
+        age: [
+          {
+            handler(newValue, oldValue) {
+              console.log(newValue, oldValue)
+            },
+            sync: true // 这个参数加上 此时等于同步更新了
+          },
+          {
+            handler(newValue, oldValue) {
+              console.log(newValue, oldValue)
+            },
+            sync: true // 这个参数加上 此时等于同步更新了
+          }
+        ]
+      },
+      methods: {
+        handler(newValue, oldValue) {
           console.log(newValue, oldValue)
         }
       }

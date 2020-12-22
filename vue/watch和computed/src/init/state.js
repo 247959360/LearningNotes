@@ -1,6 +1,7 @@
 // 初始化状态
 import { observer } from '../observer/index.js'
 import Watcher  from '../observer/watcher'
+import { isObject } from '../util/index.js'
 export function initState(vm) {
   const opts = vm.$options
   // console.log(opts)
@@ -26,8 +27,8 @@ export function initState(vm) {
   if(opts.computed) {
     initComputed(vm, opts.computed)
   }
-  if(opts.data) {
-    initWatch(vm)
+  if(opts.watch) {
+    initWatch(vm, opts.watch)
   }
 }
 
@@ -75,6 +76,32 @@ function initComputed(vm, computed) {
   }
 }
 
-function initWatch(vm) {
-  
+// watch的原理是通过Watcher
+function initWatch(vm, watch) {
+  for(let key in watch) {
+    const handler = watch[key]
+    if(Array.isArray(handler)) {
+      // 如果用户传递的是一个数组  就循环数组，将值依次创建
+      for(let i = 0; i < handler.length; i++) {
+        createWatcher(vm, key, handler[i])
+      }
+    } else {
+      // 单纯的key value
+      createWatcher(vm, key, handler)
+    }
+  }
+}
+
+function createWatcher(vm, key, handler, options = {}) {
+  console.log(vm)
+  if(isObject(handler)) {
+    // 直接把参数放在options上
+    options = handler
+    handler = handler.handler
+  }
+  // methods也是需要代理到实例上面 用户可以直接调用
+  if(typeof handler == 'string') { // 获取methods里面的方法
+    handler = vm.$options.methods[handler]
+  }
+  console.log(handler)
 }
