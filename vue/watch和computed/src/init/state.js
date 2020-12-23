@@ -93,7 +93,7 @@ function initWatch(vm, watch) {
 }
 
 function createWatcher(vm, key, handler, options = {}) {
-  console.log(vm)
+  // console.log(vm)
   if(isObject(handler)) {
     // 直接把参数放在options上
     options = handler
@@ -103,5 +103,7 @@ function createWatcher(vm, key, handler, options = {}) {
   if(typeof handler == 'string') { // 获取methods里面的方法
     handler = vm.$options.methods[handler]
   }
-  console.log(handler)
+  // console.log(handler, '111')
+  // watch的原理就是$watch
+  return vm.$watch(key, handler, options)
 }

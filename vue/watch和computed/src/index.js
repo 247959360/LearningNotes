@@ -3,6 +3,8 @@ import { init } from './init/init.js'
 import { renderMixin } from './render/render.js'
 import { lifecycleMixin } from './lifecycle/lifecycle.js'
 import { initGlobalAPI } from './initGlobaleAPI/index.js'
+import { stateMixin } from './stateMixin/index.js'
+
 function Vue(options) {
   // 进行vue的初始化
   this._init(options)
@@ -18,7 +20,8 @@ initGlobalAPI(Vue)
 init(Vue)
 renderMixin(Vue)
 lifecycleMixin(Vue)
-
+// 在这里扩展一个方法
+stateMixin(Vue)
 
 // demo  产生两个虚拟节点进行比对
 // template =》 render方法 =》 vnode

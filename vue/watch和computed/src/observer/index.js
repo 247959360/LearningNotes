@@ -86,8 +86,8 @@ function defineReactive(data, key, value) {
           // 当前是数组 需要进行依赖的收集  并且做一次循环递归处理
           // 防止数组里面套数组  依赖收集不全
           if(Array.isArray(value)) {
-            console.log("进入数组的劫持")
-            console.log(value)
+            // console.log("进入数组的劫持")
+            // console.log(value)
             dependArray(value)
           }
         }
@@ -96,7 +96,7 @@ function defineReactive(data, key, value) {
     },
     // 设置值的时候 做一些操作
     set(newValue) {
-      console.log("重新设置了数据了")
+      // console.log("重新设置了数据了")
       if(newValue === value) return
       // 设置的值是对象  还需要再次进行数据的劫持
       observer(newValue)
