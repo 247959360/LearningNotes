@@ -21,7 +21,7 @@ export function init(Vue) {
 
     // 初始化组件
     if (options && options._isComponent) {
-      console.log(options, 'options')
+      // console.log(options, 'options')
       // initInternalComponent(vm, options)
     }
 
@@ -63,6 +63,7 @@ export function init(Vue) {
       // 把template变成虚拟节点
       const render = compileToFunction(template)
       options.render = render
+      // console.log(render, 'render')
       // console.log(options.render, 'options.render')
     }
     

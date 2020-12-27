@@ -1,6 +1,7 @@
 import { isReservedTag } from '../util/index'
 export function patch(oldVnode, vnode) {
   // console.log(oldVnode, 'oldVnode')
+  // console.log(vnode)
   // 组件的挂载是没有 oldVnode的
   if(!oldVnode) {
     // vm.$mount()

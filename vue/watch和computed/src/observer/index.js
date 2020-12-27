@@ -79,7 +79,7 @@ function defineReactive(data, key, value) {
       // 这个是Dep大类的Target 渲染一次就有了
       if(Dep.target) { // 如果当前有watcher了
         // 取值的时候 先把wathcer存起来
-        dep.depend() // 我要将watcher存起来
+        dep.depend(key) // 我要将watcher存起来
         // 如果当前取值的时候，childOb是一个对象或者数组时
         if(childOb) { // 对象的依赖会收集 但是会被抛弃掉
           // childOb.dep.depend() // 数组的依赖收集
@@ -96,7 +96,7 @@ function defineReactive(data, key, value) {
     },
     // 设置值的时候 做一些操作
     set(newValue) {
-      // console.log("重新设置了数据了")
+      console.log("重新设置了数据了")
       if(newValue === value) return
       // 设置的值是对象  还需要再次进行数据的劫持
       observer(newValue)

@@ -7,7 +7,8 @@ export default class Dep {
     this.watcherId = new Set()
     this.watchers = []
   }
-  depend() {
+  depend(key) {
+    // console.log(key, "当前依赖的key")
     // 观察者模式  数据变了，就进行更新
     // 判断当前的watcher是否重复
     // this.subs.push(Dep.target)
@@ -31,7 +32,7 @@ export default class Dep {
     Dep.target.addDep(this)
   }
   notify() {
-    // 每个组件都有自己的watcher
+    // 每个属性都有自己的watcher
     this.subs.forEach((watcher) => {
       // console.log(watcher, "xxxxxx")
       watcher.update()
@@ -40,6 +41,7 @@ export default class Dep {
   // dep中存放watcher
   addSub(watcher) {
     this.subs.push(watcher)
+    console.log(this.subs, 'this.subs')
     // console.log(this.subs, 'this.subs')
     // console.log(this.subs, `${this.id}---------------this.id`)
     // let id = watcher.id

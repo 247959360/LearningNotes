@@ -23,7 +23,7 @@ export function initState(vm) {
     })
   }
   if(opts.computed) {
-    initComputed(vm, opts.computed)
+    // initComputed(vm, opts.computed)
   }
   if(opts.data) {
     initWatch(vm)

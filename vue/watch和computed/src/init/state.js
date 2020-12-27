@@ -1,4 +1,5 @@
 // 初始化状态
+import Dep from '../observer/dep.js'
 import { observer } from '../observer/index.js'
 import Watcher  from '../observer/watcher'
 import { isObject } from '../util/index.js'
@@ -66,6 +67,7 @@ function initData(vm) {
 // 内部原理都是通过watcher实现的
 function initComputed(vm, computed) {
   // _computedWatcher 存放者所有的计算属性对应的watcher
+
   const watchers = vm._computedWatcher = {}
   for(let key in computed) {
     const userDef = computed[key] // 获取用户的函数
@@ -73,6 +75,48 @@ function initComputed(vm, computed) {
     const getter = typeof userDef == 'function' ? userDef : userDef.get
     // 每个computed属性都对应一个自己的watcher lazy: true 表示计算属性
     watchers[key] = new Watcher(vm, getter, ()=> {}, { lazy: true })
+    // 计算属性的挂载到实例上 通过vm实例上
+    console.log("99999")
+    defineComputed(vm, key, userDef)
+  }
+}
+
+// 属性描述器
+const sharePropertyDefinition = {
+  enumerable: true,
+  configureable: true,
+  get: () => {},
+  set: () => {}
+}
+function defineComputed(target, key, userDef) {
+  if(typeof userDef == 'function') {
+    sharePropertyDefinition.get = createComputedGetter(key)
+  } else {
+    sharePropertyDefinition.get = createComputedGetter(key)
+    sharePropertyDefinition.set = userDef.set || (() => {})
+  }
+  // 做一个代理
+  Object.defineProperty(target, key, sharePropertyDefinition)
+}
+
+// 添加缓存效果
+function createComputedGetter(key) {
+  return function() {
+    // 做缓存效果
+    // 拿到刚才的wacther  这是一个实例
+    let wacther = this._computedWatcher[key]
+    // console.log("xxxxx")
+    if(wacther.dirty) { // 默认第一次取值为true
+      console.log("数据重新获取了666666")
+      wacther.evaluate()
+    }
+    // Dep.target 还有值的话  那么就需要进行依赖的收集
+    if(Dep.target) {
+      // wacther 指的是计算属性 watcher
+      // console.log(key, "这里的key")
+      wacther.depend(key)
+    }
+    return wacther.value
   }
 }
 
