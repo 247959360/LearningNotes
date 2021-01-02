@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div id="app">
+    {{ age1 }}
+  </div>
+  <script src="../dist/vue.js" type="text/javascript"></script>
+  <!-- <script src="../node_modules/vue/dist/vue.js" type="text/javascript"></script> -->
+  <script>
+    let vm = new Vue({
+      el: '#app',
+      data() {
+        return {
+          age: 100,
+          name: 1,
+          height: '100',
+          weight: 200
+        }
+        // return { name: 'sgjm', age: {age: {age: 20 }} }
+      },
+      computed: {
+        // watch 在内部会对变量取值  即使不使用
+        // computed特点
+        // 1、默认在内部不会取值，2、computed依赖的值不变就不会重新执行，
+        // 3、computed变量可以用于模版的渲染
+        // 写法  只写了get
+        // 或者写了 get和set
+        allName() {
+          console.log("allName")
+          // 这两个属性会被加到计算属性watch里面
+          // 改了name和age 只会让计算属性的wacther执行 
+          return this.name + '-' + this.age
+        },
+        age1: {
+          get() {
+            return this.name + '-' + this.age
+          },
+          set(newValue) {
+            return this.name = "xxx"
+            // console.log('newValue', newValue)
+            // console.log('oldValue', oldValue)
+            // return "11111"
+          }
+        }
+      },
+      // 如果监控的key 对应的值是一个对象是无法获取老状态
+      // 因为是一个饮用类型 新的改了，老的一定会瘦影响
+      watch: {
+        // certno: {
+        //   handler: 'handler'
+        // },
+        // name(newValue, oldValue) {
+        //   console.log(newValue, oldValue)
+        //   // return newValue
+        // },
+        // 'age': {
+        //   handler(newValue, oldValue) {
+        //     console.log('newValue', newValue)
+        //     console.log('oldValue', oldValue)
+        //   },
+        //   sync: true
+        // },
+        // 'name': {
+        //   handler(newValue, oldValue) {
+        //     console.log('newValue', newValue)
+        //     console.log('oldValue', oldValue)
+        //   },
+        //   sync: true
+        // },
+        // age: [
+        //   {
+        //     handler(newValue, oldValue) {
+        //       console.log(newValue, oldValue)
+        //     },
+        //     sync: true // 这个参数加上 此时等于同步更新了
+        //   },
+        //   {
+        //     handler(newValue, oldValue) {
+        //       console.log(newValue, oldValue)
+        //     },
+        //     sync: true // 这个参数加上 此时等于同步更新了
+        //   }
+        // ]
+      },
+      methods: {
+        handler(newValue, oldValue) {
+          console.log(newValue, oldValue)
+        }
+      }
+    })
+    // vm.age = 100
+    // console.log(vm.age = 0)
+    // set的时候  其实也需要进行依赖的收集
+    // console.log(vm.allName = "1000")
+    // name和age 应该记录除了计算属性之外 还要记住当前的渲染wacther
+    // setTimeout(() => {
+    //   // 渲染wacther也要进行收集 才能触发值的更新
+    //   // name因为没有在页面上使用 name依赖收集，此时代码的更新，会调用get方法获取数据
+    //   vm.name = 'xxxxxxx'
+    //   // vm.height = "height"
+    //   // console.log(vm.height)
+    //   // vm.allName = "xxxx"
+    // }, 2000)
+    setTimeout(() => {
+      vm.age1 = '10011'
+    }, 1000)
+    // computed 可以直接设置值吗
+  </script>
+</body>
+
+</html>
