@@ -1,0 +1,16 @@
+{
+  "name": "install",
+  "version": "1.0.0",
+  "description": "安装自己发布的包",
+  "main": "index.js",
+  "type": "module", 
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "shangguanjianming": "^1.0.2"
+  }
+}

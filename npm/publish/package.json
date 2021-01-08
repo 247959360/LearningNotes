@@ -1,0 +1,12 @@
+{
+  "name": "shangguanjianming",
+  "version": "1.0.2",
+  "description": "npm发包学习",
+  "main": "index.mjs",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "shangguanjianming",
+  "license": "ISC"
+}
