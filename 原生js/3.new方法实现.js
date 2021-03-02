@@ -10,8 +10,8 @@ function Bird(name) {
 }
 
 // 创建一个实例 实例是一个新的对象
-let bird = new Bird()
-bird.eat()
+// let bird = new Bird()
+// bird.eat()
 function myNew(Fn, ...args) {
   let obj = {}
   obj.__proto__ = Fn.prototype

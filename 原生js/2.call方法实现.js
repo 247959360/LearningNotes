@@ -51,3 +51,44 @@ Object.prototype.myBind = function(context, ...args) {
 // bind方法不能直接调用
 let bind = obj.func.myBind(obj2)
 bind()
+
+// 最近全力学习  争取进入一线的大厂  然后好好的奋斗两年
+function flatten(array) {
+  let newArr = []
+  for(let i = 0; i < array.length; i++) {
+    if(Array.isArray(array[i])) {
+      newArr = newArr.concat(flatten(array[i]))
+    } else {
+      newArr.push(array[i])
+    }
+  }
+  return newArr
+}
+console.log(flatten([[1,2, [3,4], [5,5]]]))
+
+// 将URL的参数转换成对象进行获取
+function getParamsUrl(url) {
+  url = url.substr(url.indexOf('?') + 1)
+  let arr = url.replace(/&/g, ' ').split(' ')
+  let params = {}
+  arr.forEach((item, index) => {
+    params[item.split('=')[0]] = item.split('=')[1]
+  })
+  return params
+}
+getParamsUrl('http://www.baidu.com?a=b&b=c')
+
+function objToUrl(obj) {
+  let keys = Object.keys(obj)
+  let str = '?'
+  keys.forEach((key, index) => {
+    if(index !== keys.length - 1) {
+      str = str + key + '=' + obj[key] + '&'
+    } else {
+      str = str + key + '=' + obj[key]
+    }
+  })
+  console.log(str)
+  return str
+}
+objToUrl({a: 1, b: 19})
